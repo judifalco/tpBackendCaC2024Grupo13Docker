@@ -1,0 +1,49 @@
+version: "3.7"
+services:
+  tpback-app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: tpabackend-app
+    container_name: tpbackend-app
+    restart: unless-stopped
+    working_dir: /var/www/
+    expose:
+      - "3000"
+    volumes:
+    - ./:/var/www
+    networks:
+    - cac24
+
+  tpback-db:
+    image: yobasystems/alpine-mariadb
+    container_name: tpbackend-db
+    restart:  unless-stopped
+    environment:
+      MYSQL_DATABASE: tienda-libros
+      MYSQL_ROOT_PASSWORD: CaC2024
+      MYSQL_USER: grupo13
+      MYSQL_PASSWORD: CaC2024
+    expose:
+      - "3306"
+    volumes:
+      - ./dbdata:/var/lib/mysql
+      - ./db_dumps:/tmp/db_dumps
+    networks:
+      - cac24
+
+  tpback-nginx:
+    image: nginx:alpine
+    container_name: tpback-nginx
+    restart: unless-stopped
+    ports:
+      - 80:80
+    volumes:
+      - ./:/var/www/
+      - ./nginx:/etc/nginx/conf.d/
+    networks:
+      - cac24
+
+networks:
+  cac24:
+    driver: bridge
